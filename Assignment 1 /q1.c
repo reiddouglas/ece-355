@@ -11,6 +11,8 @@ interrupt void intserv();
 unsigned char digit = 0; /* Digit to be displayed */
 unsigned char led = 0x1; /* LED state: 0/1 = on/off */
 int main() {
+ /*Switch E at PB[0] allows the digit to increment*/
+ /*Switch D at PB[1] disables the digit incrementing*/
   *PADIR = 0xF1; /* Set Port A direction */
   *PBDIR = 0x00; /* Set Port B direction */
   *CTCON = 0x02; /* Stop Timer */
@@ -33,6 +35,7 @@ int main() {
   exit(0);
 }
 interrupt void intserv() {
+ /*Conditionally increment the displays digit every second*/
   *CTSTAT = 0x0; /* Clear “reached 0” flag */
   digit = (digit + 1)%10; /* Increment digit */
   *PAOUT = ((digit << 4) | led); /* Update Port A */
