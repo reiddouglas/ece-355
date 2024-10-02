@@ -9,7 +9,6 @@
 
 interrupt void intserv();
 unsigned char digit = 0; /* Digit to be displayed */
-unsigned char led = 0x1; /* LED state: 0/1 = on/off */
 unsigned char switch_d = 0x1 /* Switch E state: 1/0 = on/off */
 unsigned char switch_e = 0x2 /* Switch D state: 1/0 = on/off */
 int main() {
