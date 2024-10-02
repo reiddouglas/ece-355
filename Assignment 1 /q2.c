@@ -21,10 +21,18 @@ int main() {
   *IVECT = (unsigned int *) &intserv; /* Set interrupt vector */
   asm(“MoveControl PSR,#0x40”); /* CPU responds to IRQ */
   asm(“BitClear #6, PSR”); /*Clear processor interrupt bit to disable interupts*/
-  *CTCON = 0x11; /* start counting with interrupt*/
+  *CTCON = 0x1; /* start counting without interrupt*/
   *PBOUT = 0x0; /* Display 0 */
   while (1) {
-    /*Switch E at PB[0] allows the digit to increment*/
+    while (*CTSTAT & 0x1 != 0); /* Wait for timer to end */
+    digit = (digit + 1)%10; /* Increment digit */
+    *PBOUT = ((digit << 4) | *PBOUT & 0x0F); /* Update Port B by making the left 4 bits store the digit and keeping whatever is still in Port B the same */
+    *CTSTAT = 0x0; /* Clear “reached 0” flag for timer*/
+  }
+  exit(0);
+}
+interrupt void intserv() {
+     /*Switch E at PB[0] allows the digit to increment*/
     while ((*PBIN & switch_d) != 0); /* Wait until Switch E is pressed */
     while ((*PBIN & switch_d) == 0); /* Wait until Switch E is released */
     asm(“BitSet #6, PSR”); /*Set processor interrupt bit to enable interupts*/
@@ -32,12 +40,4 @@ int main() {
     while ((*PBIN & switch_e) != 0); /* Wait until Switch E is pressed */
     while ((*PBIN & switch_e) == 0); /* Wait until Switch E is released */
     asm(“BitClear #6, PSR”); /*Clear processor interrupt bit to disable interupts*/
-  }
-  exit(0);
-}
-interrupt void intserv() {
- /*Conditionally increment the displays digit every second*/
-  *CTSTAT = 0x0; /* Clear “reached 0” flag for timer*/
-  digit = (digit + 1)%10; /* Increment digit */
-  *PBOUT = ((digit << 4) | *PBOUT & 0x0F); /* Update Port B by making the left 4 bits store the digit and keeping whatever is still in Port B the same */
 }
