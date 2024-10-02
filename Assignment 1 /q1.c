@@ -10,33 +10,34 @@
 interrupt void intserv();
 unsigned char digit = 0; /* Digit to be displayed */
 unsigned char led = 0x1; /* LED state: 0/1 = on/off */
+unsigned char switch_d = 0x1 /* Switch E state: 1/0 = on/off */
+unsigned char switch_e = 0x2 /* Switch D state: 1/0 = on/off */
 int main() {
- /*Switch E at PB[0] allows the digit to increment*/
- /*Switch D at PB[1] disables the digit incrementing*/
-  *PADIR = 0xF1; /* Set Port A direction */
-  *PBDIR = 0x00; /* Set Port B direction */
+  *PADIR = 0x00; /* Set Port A direction */
+  *PBDIR = 0xF3; /* Set Port B direction */
   *CTCON = 0x02; /* Stop Timer */
   *CTSTAT = 0x0; /* Clear “reached 0” flag */
   *CNTM = 100000000; /* Initialize Timer */
   *IVECT = (unsigned int *) &intserv; /* Set interrupt vector */
   asm(“MoveControl PSR,#0x40”); /* CPU responds to IRQ */
-  *CTCON = 0x11; /* Enable Timer interrupts and start counting */
-  *PAOUT = 0x01; /* Display 0, turn LED off */
+  asm(“BitClear #6, PSR”); /*Clear processor interrupt bit to disable interupts*/
+  *CTCON = 0x11; /* start counting with interrupt*/
+  *PBOUT = 0x0; /* Display 0 */
   while (1) {
-    while ((*PBIN & 0x1) != 0); /* Wait until SW is pressed */
-    while ((*PBIN & 0x1) == 0); /* Wait until SW is released */
-    if (led == 0x1) led = 0x0; /* If off, turn LED on */
-    else led = 0x1; /* Else, turn LED off */
-    *PAOUT = ((digit << 4) | led); /* Update Port A */
- /* We can also put “*CTCON &= 0xEF;” before and “*CTCON |= 0x10;”
- * after the last statement, to make sure that intserv() is not
- * interfering with main() accessing shared digit/led/PAOUT */
+    /*Switch E at PB[0] allows the digit to increment*/
+    while ((*PBIN & switch_d) != 0); /* Wait until Switch E is pressed */
+    while ((*PBIN & switch_d) == 0); /* Wait until Switch E is released */
+    asm(“BitSet #6, PSR”); /*Set processor interrupt bit to enable interupts*/
+    /*Switch D at PB[1] disables the digit incrementing*/
+    while ((*PBIN & switch_e) != 0); /* Wait until Switch E is pressed */
+    while ((*PBIN & switch_e) == 0); /* Wait until Switch E is released */
+    asm(“BitClear #6, PSR”); /*Clear processor interrupt bit to disable interupts*/
   }
   exit(0);
 }
 interrupt void intserv() {
  /*Conditionally increment the displays digit every second*/
-  *CTSTAT = 0x0; /* Clear “reached 0” flag */
+  *CTSTAT = 0x0; /* Clear “reached 0” flag for timer*/
   digit = (digit + 1)%10; /* Increment digit */
-  *PAOUT = ((digit << 4) | led); /* Update Port A */
+  *PBOUT = ((digit << 4) | switch_); /* Update Port A */
 }
