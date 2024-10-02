@@ -39,5 +39,5 @@ interrupt void intserv() {
  /*Conditionally increment the displays digit every second*/
   *CTSTAT = 0x0; /* Clear “reached 0” flag for timer*/
   digit = (digit + 1)%10; /* Increment digit */
-  *PBOUT = ((digit << 4) | switch_); /* Update Port A */
+  *PBOUT = ((digit << 4) | *PBOUT & 0x0F); /* Update Port B by making the left 4 bits store the digit and keeping whatever is still in Port B the same */
 }
