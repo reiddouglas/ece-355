@@ -8,8 +8,8 @@
 
 interrupt void intserv();
 unsigned char digit = 0; /* Digit to be displayed */
-unsigned char switch_d = 0x1 /* Switch E state: 1/0 = on/off */
-unsigned char switch_e = 0x2 /* Switch D state: 1/0 = on/off */
+unsigned char switch_e = 0x1 /* Switch E state: 1/0 = on/off */
+unsigned char switch_d = 0x2 /* Switch D state: 1/0 = on/off */
 int main() {
   *PBDIR = 0xF0; /* Set Port B direction (1 = output, 0 = input)*/
   *CTCON = 0x02; /* Stop Timer */
@@ -17,7 +17,7 @@ int main() {
   *CNTM = 100000000; /* Initialize Timer */
   *IVECT = (unsigned int *) &intserv; /* Set interrupt vector */
   asm(“MoveControl PSR,#0x40”); /* CPU responds to IRQ */
-  asm(“BitClear #6, PSR”); /*Clear processor interrupt bit to disable interupts*/
+  asm(“BitClear #6, PSR”); /*Clear processor interrupt bit to disable interupts */
   *CTCON = 0x11; /* start counting with interrupt*/
   *PBOUT = 0x0; /* Display 0 */
   while (1) {
