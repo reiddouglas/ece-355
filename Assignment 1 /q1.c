@@ -1,6 +1,5 @@
-#define PAOUT (volatile unsigned char *) 0xFFFFFFF1
-#define PADIR (volatile unsigned char *) 0xFFFFFFF2
 #define PBIN (volatile unsigned char *) 0xFFFFFFF3
+#define PBOUT (volatile unsigned char *) 0xFFFFFFF4
 #define PBDIR (volatile unsigned char *) 0xFFFFFFF5
 #define CNTM (volatile unsigned int *) 0xFFFFFFD0
 #define CTCON (volatile unsigned char *) 0xFFFFFFD8
@@ -12,8 +11,7 @@ unsigned char digit = 0; /* Digit to be displayed */
 unsigned char switch_d = 0x1 /* Switch E state: 1/0 = on/off */
 unsigned char switch_e = 0x2 /* Switch D state: 1/0 = on/off */
 int main() {
-  *PADIR = 0x00; /* Set Port A direction */
-  *PBDIR = 0xF3; /* Set Port B direction */
+  *PBDIR = 0xF0; /* Set Port B direction (1 = output, 0 = input)*/
   *CTCON = 0x02; /* Stop Timer */
   *CTSTAT = 0x0; /* Clear “reached 0” flag */
   *CNTM = 100000000; /* Initialize Timer */
@@ -38,5 +36,5 @@ interrupt void intserv() {
  /*Conditionally increment the displays digit every second*/
   *CTSTAT = 0x0; /* Clear “reached 0” flag for timer*/
   digit = (digit + 1)%10; /* Increment digit */
-  *PBOUT = ((digit << 4) | *PBOUT & 0x0F); /* Update Port B by making the left 4 bits store the digit and keeping whatever is still in Port B the same */
+  *PBOUT = (digit << 4); /* Update Port B by making the left 4 bits store the digit; there is no other output so this is all we need to do*/
 }
