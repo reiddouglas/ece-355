@@ -10,17 +10,19 @@
 
 interrupt void intserv();
 unsigned char digit = 0; /* Digit to be displayed */
-unsigned char enabled = 0; /*Whether the display incrementing is enabled (0/1 = disabled/enabled)
+unsigned char enabled = 0; /*Whether the display incrementing is enabled (0/1 = disabled/enabled)*/
+unsigned char switch_d = 0x2; /* Enable Switch D */
+unsigned char switch_e = 0x1; /* Enable Switch E */
 int main() {
   *PBDIR = 0xF3; /* Set Port B direction */
-  *PSTAT = 0x00 /* Clear Status register just in case*/
-  *PCONT = 0x20 /* Set ENBIN to 1 to enable interrupts on changes to PBIN /*
+  *PSTAT = 0x00; /* Clear Status register */
+  *PCONT = 0x20; /* Set ENBIN to 1 to enable interrupts on changes to PBIN */
+  enabled = 0; /* Timer is disabled (stopped) by default */
   *CTCON = 0x02; /* Stop Timer */
   *CTSTAT = 0x0; /* Clear “reached 0” flag */
   *CNTM = 100000000; /* Initialize Timer */
   *IVECT = (unsigned int *) &intserv; /* Set interrupt vector */
   asm(“MoveControl PSR,#0x40”); /* CPU responds to IRQ */
-  *CTCON = 0x1; /* start counting without interrupt*/
   *PBOUT = 0x0; /* Display 0 */
   while (1) {
     while (*CTSTAT & 0x1 != 0); /* Wait for timer to end */
@@ -31,20 +33,22 @@ int main() {
   exit(0);
 }
 interrupt void intserv() {
-     /* Assume we don't know if it will be IBIN that caused interrupt */
+     /* Check IBIN for interrupt bit*/
      if(*PSTAT & 0x20 != 0){
       /*Check whether the display is incrementing*/
       if(enabled){
        /* Check if switch d has been pressed to disable incrementing */
-       if()
+       if(*PBIN & switch_d != 0){
+        /*Pause countdown*/
+        *CTCON = 0x02; /* Stop Timer */
+        enabled = 0;
+       }
+      } else {
+        /* Check if switch e has been pressed to enable incrementing */
+       if(*PBIN & switch_e != 0){
+        /* Start countdown */
+        *CTCON = 0x01; /* Start Timer */
+        enabled = 1;
       }
      }
-     /*Switch E at PB[0] allows the digit to increment*/
-    while ((*PBIN & switch_d) != 0); /* Wait until Switch E is pressed */
-    while ((*PBIN & switch_d) == 0); /* Wait until Switch E is released */
-    asm(“BitSet #6, PSR”); /*Set processor interrupt bit to enable interupts*/
-    /*Switch D at PB[1] disables the digit incrementing*/
-    while ((*PBIN & switch_e) != 0); /* Wait until Switch E is pressed */
-    while ((*PBIN & switch_e) == 0); /* Wait until Switch E is released */
-    asm(“BitClear #6, PSR”); /*Clear processor interrupt bit to disable interupts*/
 }
