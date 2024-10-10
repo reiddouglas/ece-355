@@ -63,4 +63,5 @@ interrupt void intserv() {
 			digit_2 += 1;
 			*PBOUT = ((digit_2 << 4) | (*PAOUT & 0x0F)); /* Update Port B */
 		}
+	}
 }
