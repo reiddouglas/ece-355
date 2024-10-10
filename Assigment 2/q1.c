@@ -3,8 +3,6 @@
 #define PBIN (volatile unsigned char *) 0xFFFFFFF3
 #define PBOUT (volatile unsigned char *) 0xFFFFFFF4
 #define PBDIR (volatile unsigned char *) 0xFFFFFFF5
-#define PSTAT (volatile unsigned int *) 0xFFFFFFF6
-#define PCONT (volatile unsigned int *) 0xFFFFFFF7
 #define CNTM (volatile unsigned int *) 0xFFFFFFD0
 #define CTCON (volatile unsigned char *) 0xFFFFFFD8
 #define CTSTAT (volatile unsigned char *) 0xFFFFFFD9
