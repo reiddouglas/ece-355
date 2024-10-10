@@ -35,7 +35,7 @@ int main() {
 	while (1) {
 		
 		while ((*PBIN & 0x1) != 0); /* Wait until SW is pressed */
-    while ((*PBIN & 0x1) == 0); /* Wait until SW is released */
+		while ((*PBIN & 0x1) == 0); /* Wait until SW is released */
 		
 		// If LED 1 is on...
 		if (led_1 == 0x0){
