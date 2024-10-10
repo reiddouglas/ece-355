@@ -52,16 +52,13 @@ int main() {
 	exit(0);
 }
 interrupt void intserv() {
-	// Check if the counter triggered the interrupt
-	if((*CTSTAT & 0x01) != 0){
-		*CTSTAT = 0x00; // Reset CTSTAT counter reached zero flag
-		// If LED 1 is on...
-		if (led_1 == 0x0){
-			digit_1 += 1;
-			*PAOUT = (digit_1 | LED_1_ON_MASK); /* Update Port A */
-		} else {
-			digit_2 += 1;
-			*PBOUT = ((digit_2 << 4) | (*PAOUT & 0x0F)); /* Update Port B */
-		}
+	*CTSTAT = 0x00; // Reset CTSTAT counter reached zero flag
+	// If LED 1 is on...
+	if (led_1 == 0x0){
+		digit_1 = (digit_1 + 1)%10;
+		*PAOUT = (digit_1 | LED_1_ON_MASK); /* Update Port A */
+	} else {
+		digit_2 = (digit_2 + 1)%10;
+		*PBOUT = ((digit_2 << 4) | (*PAOUT & 0x0F)); /* Update Port B */
 	}
 }
