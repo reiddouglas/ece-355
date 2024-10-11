@@ -11,10 +11,10 @@
 interrupt void intserv();
 unsigned char digit_1 = 0; /* Digit to be displayed for led 1 display*/
 unsigned char digit_2 = 0; /* Digit to be displayed for led 2 display*/
-unsigned char led_1 = 0x0; /* LED state: 0/1 = on/off */
-unsigned char led_2 = 0x1; /* LED state: 0/1 = on/off */
-unsigned char LED_1_ON_MASK = 0x20;
-unsigned char LED_2_ON_MASK = 0x40;
+unsigned char led_1 = 0; /* LED state: 0/1 = on/off */
+unsigned char led_2 = 0; /* LED state: 0/1 = on/off */
+unsigned char LED_1_MASK = 0x40;
+unsigned char LED_2_MASK = 0x20;
 int main() {
 	*CTCON = 0x02; /* Stop Counter */
 	*CTSTAT = 0x0; /* Clear “reached 0” flag */
@@ -36,12 +36,12 @@ int main() {
 		while ((*PBIN & 0x1) == 0); /* Wait until SW is released */
 		
 		// If LED 1 is on...
-		if (led_1 == 0x0){
-			*PAOUT = (digit_1 | LED_2_ON_MASK);
+		if (led_1 == 0){
+			*PAOUT = ((*PAOUT & 0x0F) | LED_1_MASK);
 			led_1 = 0x1 //turn off
 			led_2 = 0x0 //turn on
 		} else {
-			*PAOUT = (digit_1 | LED_1_ON_MASK);
+			*PAOUT = ((*PAOUT & 0x0F) | LED_2_MASK);
 			led_1 = 0x0 //turn on
 			led_2 = 0x1 //turn off
 		}
@@ -52,9 +52,9 @@ int main() {
 interrupt void intserv() {
 	*CTSTAT = 0x00; // Reset CTSTAT counter reached zero flag
 	// If LED 1 is on...
-	if (led_1 == 0x0){
+	if (led_1 == 0){
 		digit_1 = (digit_1 + 1)%10;
-		*PAOUT = (digit_1 | LED_1_ON_MASK); /* Update Port A */
+		*PAOUT = (digit_1 | (*PAOUT & 0xF0)); /* Update Port A */
 	} else {
 		digit_2 = (digit_2 + 1)%10;
 		*PBOUT = ((digit_2 << 4) | (*PAOUT & 0x0F)); /* Update Port B */
