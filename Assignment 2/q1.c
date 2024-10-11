@@ -20,7 +20,7 @@ int main() {
 	*CTSTAT = 0x0; /* Clear “reached 0” flag */
 	
 	*PADIR = 0x6F; /* Set Port A direction */
-	*PAOUT = LED_1_ON_MASK; /* Set LED 1 to on, zero digit 1 and turn LED 2 off */
+	*PAOUT = LED_2_MASK; /* Set LED 1 to on, zero digit 1 and turn LED 2 off */
 	
 	*PBDIR = 0xF0; /* Set Port B direction */
 	*PBOUT = 0x00; /* Zero digit 2*/
