@@ -24,8 +24,6 @@ int main() {
 	
 	*PBDIR = 0xF0; /* Set Port B direction */
 	*PBOUT = 0x00; /* Zero digit 2*/
-
-	*PCONT = 0x40; /* Set ENBIN bit to allow interrupts on change of input */
 	
 	*CNTM = 100000000; /* Initialize Timer to 100 000 000 ticks (1 second timer for 100 MHz timer)*/
 	*IVECT = (unsigned int *) &intserv; /* Set interrupt vector */
