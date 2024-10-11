@@ -72,6 +72,6 @@ interrupt void intserv() {
 		
 	}else{
 		//button was just pressed...
-		button_pressed = 1;
+		button_pressed = 0;
 	}
 }
